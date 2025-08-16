@@ -1,0 +1,66 @@
+diff --git a/dist/core/index.d.ts b/dist/core/index.d.ts
+index 8c536504a8e854e41ac707617f7d5d872b989630..ebc3abd3a9394a3152789fbb39e75f3d29917855 100644
+--- a/dist/core/index.d.ts
++++ b/dist/core/index.d.ts
+@@ -1,4 +1,5 @@
+ import type Oas from 'oas';
++import type { RequestInit } from 'undici';
+ import type { Operation } from 'oas';
+ import type { HttpMethods } from 'oas/dist/rmoas.types';
+ import 'isomorphic-fetch';
+@@ -13,6 +14,11 @@ export interface ConfigOptions {
+      * in milliseconds.
+      */
+     timeout?: number;
++    /**
++     * Additional arguments to pass to the `init` object used in fetch requests.
++     * These will be shallow-merged with internal options. The `signal` property is always managed internally and cannot be overridden.
++     */
++    init?: Omit<RequestInit, 'signal'>;
+ }
+ export interface FetchResponse<status, data> {
+     data: data;
+diff --git a/dist/core/index.js b/dist/core/index.js
+index cd96f57b6f044977f07d2f204da143956ef98515..3dbd958ebe98436787797a86390d36c2cb9980b5 100644
+--- a/dist/core/index.js
++++ b/dist/core/index.js
+@@ -127,7 +127,7 @@ var APICore = /** @class */ (function () {
+                         // @ts-expect-error `this.auth` typing is off. FIXME
+                         var har = (0, oas_to_har_1["default"])(_this.spec, operation, data, (0, prepareAuth_1["default"])(_this.auth, operation));
+                         var timeoutSignal;
+-                        var init = {};
++                        var init = { ..._this.config.init };
+                         if (_this.config.timeout) {
+                             var controller_1 = new node_abort_controller_1.AbortController();
+                             timeoutSignal = setTimeout(function () { return controller_1.abort(); }, _this.config.timeout);
+diff --git a/src/core/index.ts b/src/core/index.ts
+index eb7ab2cde94917ebdda5059738390114c1e30c0a..d7d3279868310e546f7013ae9b876791b1a0cfde 100644
+--- a/src/core/index.ts
++++ b/src/core/index.ts
+@@ -1,4 +1,5 @@
+ import type Oas from 'oas';
++import type { RequestInit } from 'undici';
+ import type { Operation } from 'oas';
+ import type { HttpMethods } from 'oas/dist/rmoas.types';
+ 
+@@ -22,6 +23,11 @@ export interface ConfigOptions {
+    * in milliseconds.
+    */
+   timeout?: number;
++  /**
++   * Additional arguments to pass to the `init` object used in fetch requests.
++   * These will be shallow-merged with internal options. The `signal` property is always managed internally and cannot be overridden.
++   */
++  init?: Omit<RequestInit, 'signal'>;
+ }
+ 
+ export interface FetchResponse<status, data> {
+@@ -109,7 +115,7 @@ export default class APICore {
+       const har = oasToHar(this.spec, operation, data, prepareAuth(this.auth, operation));
+ 
+       let timeoutSignal: any;
+-      const init: RequestInit = {};
++      const init: RequestInit = { ...this.config.init };
+       if (this.config.timeout) {
+         const controller = new AbortController();
+         timeoutSignal = setTimeout(() => controller.abort(), this.config.timeout);

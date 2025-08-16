@@ -1,0 +1,1079 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SleepIQ API",
+    "description": "API for controlling SleepNumber beds and accessing sleep data through SleepIQ. This API allows users to control bed settings, foundation features, lighting, foot warming, and monitor sleep metrics.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "SleepNumber",
+      "url": "https://www.sleepnumber.com"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://www.sleepnumber.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://prod-api.sleepiq.sleepnumber.com/rest",
+      "description": "Production API server"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "put": {
+        "operationId": "login",
+        "summary": "Authenticate user",
+        "description": "Login using email and password to obtain an API key",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "login",
+                  "password"
+                ],
+                "properties": {
+                  "login": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "User's email address"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "User's password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "description": "API key for subsequent requests"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Login successful (alternative response)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "description": "API key for subsequent requests"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect username or password"
+          },
+          "403": {
+            "description": "User Agent is blocked"
+          }
+        }
+      }
+    },
+    "/user/jwt": {
+      "get": {
+        "operationId": "getJwt",
+        "summary": "Get JWT token",
+        "description": "Retrieve JWT token for cookie-based authentication",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JWT token retrieved successfully"
+          },
+          "201": {
+            "description": "JWT token retrieved successfully (alternative response)"
+          }
+        }
+      }
+    },
+    "/account": {
+      "get": {
+        "operationId": "getAccount",
+        "summary": "Get account information",
+        "description": "Retrieve account details and bed information",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accountId": {
+                      "type": "string",
+                      "description": "Unique identifier for the account"
+                    },
+                    "beds": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "bedId": {
+                            "type": "string",
+                            "description": "Unique identifier for the bed"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Name of the bed"
+                          },
+                          "macAddress": {
+                            "type": "string",
+                            "format": "mac",
+                            "description": "MAC address of the bed"
+                          },
+                          "model": {
+                            "type": "string",
+                            "description": "Model of the bed"
+                          },
+                          "components": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "base": {
+                                  "type": "string",
+                                  "description": "Base component identifier"
+                                },
+                                "model": {
+                                  "type": "string",
+                                  "description": "Model of the component"
+                                }
+                              }
+                            }
+                          },
+                          "sleeperLeftId": {
+                            "type": "string",
+                            "description": "ID of the left sleeper"
+                          },
+                          "sleeperRightId": {
+                            "type": "string",
+                            "description": "ID of the right sleeper"
+                          }
+                        }
+                      },
+                      "description": "List of beds associated with the account"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bed/{bedId}": {
+      "parameters": [
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        }
+      ],
+      "get": {
+        "operationId": "getBed",
+        "summary": "Get bed information",
+        "description": "Retrieve detailed information about a specific bed",
+        "tags": [
+          "Bed"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bed information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "bedId": {
+                      "type": "string",
+                      "description": "Unique identifier for the bed"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the bed"
+                    },
+                    "macAddress": {
+                      "type": "string",
+                      "format": "mac",
+                      "description": "MAC address of the bed"
+                    },
+                    "model": {
+                      "type": "string",
+                      "description": "Model of the bed"
+                    },
+                    "components": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "base": {
+                            "type": "string",
+                            "description": "Base component identifier"
+                          },
+                          "model": {
+                            "type": "string",
+                            "description": "Model of the component"
+                          }
+                        }
+                      }
+                    },
+                    "sleeperLeftId": {
+                      "type": "string",
+                      "description": "ID of the left sleeper"
+                    },
+                    "sleeperRightId": {
+                      "type": "string",
+                      "description": "ID of the right sleeper"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bed/{bedId}/pauseMode": {
+      "parameters": [
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        }
+      ],
+      "get": {
+        "operationId": "getPauseMode",
+        "summary": "Get bed pause mode",
+        "description": "Check if the bed is in pause mode",
+        "tags": [
+          "Bed"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pause mode status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pauseMode": {
+                      "type": "string",
+                      "enum": [
+                        "on",
+                        "off"
+                      ],
+                      "description": "Current pause mode status"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "setPauseMode",
+        "summary": "Set bed pause mode",
+        "description": "Enable or disable pause mode for the bed",
+        "tags": [
+          "Bed"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "mode"
+                ],
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "Pause mode to set"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pause mode updated successfully"
+          }
+        }
+      }
+    },
+    "/bed/{bedId}/pump/forceIdle": {
+      "parameters": [
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        }
+      ],
+      "put": {
+        "operationId": "stopPump",
+        "summary": "Stop pump",
+        "description": "Force the bed pump to idle state",
+        "tags": [
+          "Bed"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pump stopped successfully"
+          }
+        }
+      }
+    },
+    "/bed/{bedId}/sleepNumber": {
+      "parameters": [
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        }
+      ],
+      "put": {
+        "operationId": "setSleepNumber",
+        "summary": "Set sleep number",
+        "description": "Set the sleep number for a specific side of the bed",
+        "tags": [
+          "Bed"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sleepNumber",
+                  "side"
+                ],
+                "properties": {
+                  "sleepNumber": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Sleep number value (0-100, multiples of 5)"
+                  },
+                  "side": {
+                    "type": "string",
+                    "enum": [
+                      "L",
+                      "R"
+                    ],
+                    "description": "Side of the bed (L=Left, R=Right)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sleep number updated successfully"
+          }
+        }
+      }
+    },
+    "/bed/{bedId}/sleepNumberFavorite": {
+      "parameters": [
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        }
+      ],
+      "get": {
+        "operationId": "getFavorite",
+        "summary": "Get favorite sleep number",
+        "description": "Retrieve the favorite sleep number for each side of the bed",
+        "tags": [
+          "Bed"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favorite sleep numbers retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sleepNumberFavoriteLeft": {
+                      "type": "integer",
+                      "description": "Favorite sleep number for left side"
+                    },
+                    "sleepNumberFavoriteRight": {
+                      "type": "integer",
+                      "description": "Favorite sleep number for right side"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "setFavorite",
+        "summary": "Set favorite sleep number",
+        "description": "Set the favorite sleep number for a specific side of the bed",
+        "tags": [
+          "Bed"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "side",
+                  "sleepNumberFavorite"
+                ],
+                "properties": {
+                  "side": {
+                    "type": "string",
+                    "enum": [
+                      "L",
+                      "R"
+                    ],
+                    "description": "Side of the bed (L=Left, R=Right)"
+                  },
+                  "sleepNumberFavorite": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Favorite sleep number value (0-100, multiples of 5)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Favorite sleep number updated successfully"
+          }
+        }
+      }
+    },
+    "/bed/{bedId}/foundation/status": {
+      "parameters": [
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        }
+      ],
+      "get": {
+        "operationId": "getFoundation",
+        "summary": "Get foundation status",
+        "description": "Retrieve the current status of the bed foundation including actuators and presets",
+        "tags": [
+          "Foundation"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Foundation status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "fsCurrentPositionPresetRight": {
+                      "type": "integer",
+                      "description": "Current preset position for right side"
+                    },
+                    "fsCurrentPositionPresetLeft": {
+                      "type": "integer",
+                      "description": "Current preset position for left side"
+                    },
+                    "fsTargetPositionPresetRight": {
+                      "type": "integer",
+                      "description": "Target preset position for right side"
+                    },
+                    "fsTargetPositionPresetLeft": {
+                      "type": "integer",
+                      "description": "Target preset position for left side"
+                    },
+                    "fsLeftSidePosition": {
+                      "type": "integer",
+                      "description": "Current left side position"
+                    },
+                    "fsRightSidePosition": {
+                      "type": "integer",
+                      "description": "Current right side position"
+                    },
+                    "fsLeftSideTargetPosition": {
+                      "type": "integer",
+                      "description": "Target left side position"
+                    },
+                    "fsRightSideTargetPosition": {
+                      "type": "integer",
+                      "description": "Target right side position"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bed/{bedId}/foundation/outlet": {
+      "parameters": [
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        },
+        {
+          "name": "outletId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "description": "Outlet identifier for different bed components"
+          },
+          "description": "Outlet identifier: 1=Right Night Stand, 2=Left Night Stand, 3=Right Night Light, 4=Left Night Light"
+        }
+      ],
+      "get": {
+        "operationId": "checkOutlet",
+        "summary": "Check outlet status",
+        "description": "Check if a specific outlet exists and get its status",
+        "tags": [
+          "Foundation"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Outlet status retrieved successfully"
+          },
+          "404": {
+            "description": "Outlet not found"
+          }
+        }
+      }
+    },
+    "/bed/{bedId}/foundation/footwarming": {
+      "parameters": [
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        }
+      ],
+      "get": {
+        "operationId": "getFootWarming",
+        "summary": "Get foot warming status",
+        "description": "Retrieve the current foot warming settings for both sides of the bed",
+        "tags": [
+          "Foundation"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Foot warming status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "footWarmingLeft": {
+                      "type": "integer",
+                      "description": "Foot warming setting for left side (0=Off, 31=Low, 57=Medium, 72=High)"
+                    },
+                    "footWarmingRight": {
+                      "type": "integer",
+                      "description": "Foot warming setting for right side (0=Off, 31=Low, 57=Medium, 72=High)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sleeper/{sleeperId}/calibrate": {
+      "parameters": [
+        {
+          "name": "sleeperId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the sleeper"
+        }
+      ],
+      "put": {
+        "operationId": "calibrate",
+        "summary": "Calibrate sleeper",
+        "description": "Calibrate or baseline the bed for a specific sleeper",
+        "tags": [
+          "Sleeper"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sleeper calibration initiated successfully"
+          }
+        }
+      }
+    },
+    "/sn/v1/accounts/{accountId}/beds/{bedId}/bamkey": {
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the account"
+        },
+        {
+          "name": "bedId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique identifier for the bed"
+        }
+      ],
+      "put": {
+        "operationId": "executeBam",
+        "summary": "Execute BAM key command",
+        "description": "Execute a BAM key command to control various bed features",
+        "tags": [
+          "BAM Key"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "args",
+                  "key",
+                  "sourceApplication"
+                ],
+                "properties": {
+                  "args": {
+                    "type": "string",
+                    "description": "Space-separated arguments for the command"
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "BAM key identifier for the command to execute"
+                  },
+                  "sourceApplication": {
+                    "type": "string",
+                    "description": "Name of the application making the request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "BAM key command executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cdcResponse": {
+                      "type": "string",
+                      "description": "Response from the command execution"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Account": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "Unique identifier for the account"
+          },
+          "beds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "bedId": {
+                  "type": "string",
+                  "description": "Unique identifier for the bed"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Name of the bed"
+                },
+                "macAddress": {
+                  "type": "string",
+                  "format": "mac",
+                  "description": "MAC address of the bed"
+                },
+                "model": {
+                  "type": "string",
+                  "description": "Model of the bed"
+                },
+                "components": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "base": {
+                        "type": "string",
+                        "description": "Base component identifier"
+                      },
+                      "model": {
+                        "type": "string",
+                        "description": "Model of the component"
+                      }
+                    }
+                  }
+                },
+                "sleeperLeftId": {
+                  "type": "string",
+                  "description": "ID of the left sleeper"
+                },
+                "sleeperRightId": {
+                  "type": "string",
+                  "description": "ID of the right sleeper"
+                }
+              }
+            },
+            "description": "List of beds associated with the account"
+          }
+        }
+      },
+      "Bed": {
+        "type": "object",
+        "properties": {
+          "bedId": {
+            "type": "string",
+            "description": "Unique identifier for the bed"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the bed"
+          },
+          "macAddress": {
+            "type": "string",
+            "format": "mac",
+            "description": "MAC address of the bed"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model of the bed"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "base": {
+                  "type": "string",
+                  "description": "Base component identifier"
+                },
+                "model": {
+                  "type": "string",
+                  "description": "Model of the component"
+                }
+              }
+            }
+          },
+          "sleeperLeftId": {
+            "type": "string",
+            "description": "ID of the left sleeper"
+          },
+          "sleeperRightId": {
+            "type": "string",
+            "description": "ID of the right sleeper"
+          }
+        }
+      },
+      "FoundationStatus": {
+        "type": "object",
+        "properties": {
+          "fsCurrentPositionPresetRight": {
+            "type": "integer",
+            "description": "Current preset position for right side"
+          },
+          "fsCurrentPositionPresetLeft": {
+            "type": "integer",
+            "description": "Current preset position for left side"
+          },
+          "fsTargetPositionPresetRight": {
+            "type": "integer",
+            "description": "Target preset position for right side"
+          },
+          "fsTargetPositionPresetLeft": {
+            "type": "integer",
+            "description": "Target preset position for left side"
+          },
+          "fsLeftSidePosition": {
+            "type": "integer",
+            "description": "Current left side position"
+          },
+          "fsRightSidePosition": {
+            "type": "integer",
+            "description": "Current right side position"
+          },
+          "fsLeftSideTargetPosition": {
+            "type": "integer",
+            "description": "Target left side position"
+          },
+          "fsRightSideTargetPosition": {
+            "type": "integer",
+            "description": "Target right side position"
+          }
+        }
+      },
+      "FootWarmingStatus": {
+        "type": "object",
+        "properties": {
+          "footWarmingLeft": {
+            "type": "integer",
+            "description": "Foot warming setting for left side (0=Off, 31=Low, 57=Medium, 72=High)"
+          },
+          "footWarmingRight": {
+            "type": "integer",
+            "description": "Foot warming setting for right side (0=Off, 31=Low, 57=Medium, 72=High)"
+          }
+        }
+      },
+      "Sleeper": {
+        "type": "object",
+        "properties": {
+          "sleeperId": {
+            "type": "string",
+            "description": "Unique identifier for the sleeper"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "L",
+              "R"
+            ],
+            "description": "Side of the bed (L=Left, R=Right)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the sleeper"
+          },
+          "inBed": {
+            "type": "boolean",
+            "description": "Whether the sleeper is currently in bed"
+          },
+          "sleepNumber": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Current sleep number setting"
+          },
+          "favoriteSleepNumber": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Favorite sleep number setting"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Bearer token using API key obtained from login endpoint"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints for user authentication and session management"
+    },
+    {
+      "name": "Account",
+      "description": "Account information and management"
+    },
+    {
+      "name": "Bed",
+      "description": "Bed control and status information"
+    },
+    {
+      "name": "Foundation",
+      "description": "Foundation features like actuators, presets, and lighting"
+    },
+    {
+      "name": "Sleeper",
+      "description": "Individual sleeper management and calibration"
+    },
+    {
+      "name": "BAM Key",
+      "description": "Advanced bed control commands using BAM key system"
+    }
+  ],
+  "externalDocs": {
+    "description": "SleepNumber SleepIQ",
+    "url": "https://www.sleepnumber.com/sn/en/sleepiq-sleep-tracker"
+  }
+}
